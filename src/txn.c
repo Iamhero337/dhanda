@@ -43,14 +43,14 @@ txn_second_in_list(dhanda *app)
 
 //txn_read
 
-txn_findbyid(dhanda *app, int id, txn *result)
+int txn_findbyid(dhanda *app, int id, txn *result)
 {
 	int matched = 0;
 
 	debug_print("");
 
 	fseek(app->txn_fp, 0, SEEK_SET);
-	while(frintead(result, sizeof(txn), 1, app->txn_fp) > 0) {
+	while(fread(result, sizeof(txn), 1, app->txn_fp) > 0) {
 		if(id == result->id) {
 			matched = 1;
 			break;
