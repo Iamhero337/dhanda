@@ -14,12 +14,12 @@
 
 #include <dhanda/list.h>
 #include <dhanda/util.h>
+#include <dhanda/sqlite3.h>
 
 #define MAXLINE 1000
 #define MAXCMDARG 32
 #define DHANDA_DATA_STORAGE ".dhanda"
-#define DHANDA_PARTY_DB_FILE "party.db"
-#define DHANDA_TXN_DB_FILE "txn.db"
+#define DHANDA_DB_FILE "dhanda.db"
 
 enum context {
 	SCREEN_HOME = 1,
@@ -44,8 +44,7 @@ typedef struct cmdline {
 } cmdline;
 
 typedef struct dhanda {
-	FILE *party_fp;
-	FILE *txn_fp;
+	sqlite3 *db;
 	cmdline cmd;
 	enum context context;
 	void (*renderer)(struct dhanda *);

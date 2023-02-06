@@ -105,7 +105,7 @@ dhanda_init_app(struct dhanda *app)
 	int ret;
 	struct stat buf;
 	struct passwd *pw;
-	char base_path[256], party_filepath[256], txn_filepath[256];
+	char base_path[256], db_filepath[256];
 
 	/* Setup data storage directory (in user's home dir) */
 	if ((pw = getpwuid(getuid())) == NULL) {
@@ -128,30 +128,18 @@ dhanda_init_app(struct dhanda *app)
 
 	app->context = SCREEN_HOME;
 
-	strcpy(party_filepath, base_path);
-	strcat(party_filepath, "/");
-	strcat(party_filepath, DHANDA_PARTY_DB_FILE);
+	strcpy(db_filepath, base_path);
+	strcat(db_filepath, "/");
+	strcat(db_filepath, DHANDA_DB_FILE);
 
-	strcpy(txn_filepath, base_path);
-	strcat(txn_filepath, "/");
-	strcat(txn_filepath, DHANDA_TXN_DB_FILE);
-
-	app->party_fp = fopen(party_filepath, "r+b");
-	app->txn_fp   = fopen(txn_filepath, "r+b");
-
-	if (app->party_fp == NULL && errno == ENOENT)
-		app->party_fp = fopen(party_filepath, "w+b");
-	if (app->txn_fp == NULL && errno == ENOENT)
-		app->txn_fp = fopen(txn_filepath, "w+b");
-
-	if (app->party_fp == NULL) {
-		fprintf(stderr, "Error in file '%s': %s\n", party_filepath, strerror(errno));
+	ret = sqlite3_open(db_filepath, &app->db);
+	if (ret) {
+		fprintf(stderr, "sqlite3_open: %s\n", sqlite3_errmsg(app->db));
 		exit(EXIT_FAILURE);
 	}
-	if (app->txn_fp == NULL) {
-		fprintf(stderr, "Error in file '%s': %s\n", txn_filepath, strerror(errno));
-		exit(EXIT_FAILURE);
-	}
+
+	// Create all tables here
+	// DO NOT use DROP TABLE IF EXISTS ...
 
 	app->party_list = list_create(sizeof(party));
 	app->txn_list 	= list_create(sizeof(txn));
