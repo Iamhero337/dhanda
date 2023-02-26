@@ -3,6 +3,7 @@
 #include <dhanda/party.h>
 #include <dhanda/txn.h>
 #include <dhanda/cursor.h>
+#include <dhanda/sqlite3.h>
 
 /* Theses functions are like controller */
 static void dhanda_command_party_home(dhanda *app);
@@ -550,5 +551,29 @@ dhanda_resolve_delete_renderer(dhanda *app)
 		default: app->renderer = NULL;
 	}
 }
+
+
+static void dhanda_db_init(dhanda *app){
+	int ret;
+	char *err = NULL;
+
+	char *sql =
+	"CREATE TABLE parties("
+	"id INT PRIMARY KEY AUTOINCREMENT,"
+	"first_name VARCHAR(32) NOT NULL,"
+	"last_name VARCHAR(32),"
+	"phone VARCHAR(12) UNIQUE NOT NULL,"
+	"amount INTEGER DEFAULT 0,"
+	"created_at DATETIME NOT NULL,"
+	"updated_at DATETIME NOT NULL"
+	")";
+	ret = sqlite3_exec(app->db,sql, NULL,NULL, &err);
+	if (ret) {
+		free(err);
+		fprint(stderr, "sqlite3_exec: %s\n", err);
+	}
+	
+}
+
 
 
